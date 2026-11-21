@@ -1,23 +1,32 @@
 {
   "expo": {
-    "name": "casa-inventario",
-    "slug": "casa-inventario",
+    "name": "Domus",
+    "slug": "domus",
+    "owner": "stevaz14",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "scheme": "casainventario",
+    "scheme": "domus",
     "userInterfaceStyle": "light",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.stevaz14.domus",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
+      "package": "com.stevaz14.domus",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -28,12 +37,22 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "Consenti a Casa Inventario di accedere alle tue foto per allegarle agli oggetti."
+          "photosPermission": "Consenti a Domus di accedere alle tue foto per allegarle agli oggetti."
         }
       ]
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "asyncRoutes": {
+          "web": true
+        }
+      },
+      "eas": {
+        "projectId": "82497a17-1d29-4ff4-8f3c-6d98c9950164"
+      }
     }
   }
 }

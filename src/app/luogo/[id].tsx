@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Alert, StyleSheet, Text, View } from 'react-native';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 
-import { NamePrompt } from '../index';
+import { NamePrompt } from '../../components/NamePrompt';
 import {
   Button,
   Card,
@@ -28,7 +28,7 @@ export default function LocationScreen() {
   const db = useDb();
   const router = useRouter();
 
-  const { data: path } = useLocationPath(locationId);
+  const { data: path, reload: reloadPath } = useLocationPath(locationId);
   const { data: children, loading: loadingChildren, reload: reloadChildren } =
     useChildLocations(locationId);
   const { data: items, loading: loadingItems, reload: reloadItems } =
@@ -41,6 +41,7 @@ export default function LocationScreen() {
   const breadcrumb = path?.map((entry) => entry.name).join(' › ') ?? '';
 
   const reloadAll = () => {
+    reloadPath();
     reloadChildren();
     reloadItems();
   };

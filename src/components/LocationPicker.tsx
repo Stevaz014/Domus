@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Button, EmptyState, Row, SectionTitle } from './ui';
 import { useLiveData } from '../db/useInventory';
@@ -39,6 +40,7 @@ export function LocationPicker({
   onChange: (locationId: number | null) => void;
 }) {
   const [open, setOpen] = useState(false);
+  const insets = useSafeAreaInsets();
   const { data: locations } = useLiveData<Location[]>((database) => listAllLocations(database), []);
 
   const nodes = useMemo(() => flatten(locations ?? []), [locations]);
@@ -58,13 +60,18 @@ export function LocationPicker({
       </Pressable>
 
       <Modal visible={open} animationType="slide" onRequestClose={() => setOpen(false)}>
-        <View style={styles.sheet}>
+        <View style={[styles.sheet, { paddingTop: insets.top + spacing.md }]}>
           <View style={styles.sheetHeader}>
             <SectionTitle>Dove sta?</SectionTitle>
             <Button label="Chiudi" variant="secondary" onPress={() => setOpen(false)} />
           </View>
 
-          <ScrollView contentContainerStyle={styles.sheetContent}>
+          <ScrollView
+            contentContainerStyle={[
+              styles.sheetContent,
+              { paddingBottom: spacing.xl * 2 + insets.bottom },
+            ]}
+          >
             <View style={styles.noneWrap}>
               <Button
                 label="Senza posto"

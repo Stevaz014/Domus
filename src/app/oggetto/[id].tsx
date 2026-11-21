@@ -1,5 +1,6 @@
 import { Alert, StyleSheet, Text, View } from 'react-native';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ItemForm } from '../../components/ItemForm';
 import { EmptyState, Loading, ScreenScroll } from '../../components/ui';
@@ -13,6 +14,7 @@ export default function ItemScreen() {
   const itemId = Number(id);
   const db = useDb();
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { data: item, loading } = useItem(itemId);
 
   if (loading) {
@@ -68,9 +70,13 @@ export default function ItemScreen() {
         onDelete={confirmDelete}
       />
       {item.location_name ? (
-        <Text style={styles.hint}>Attualmente in: {item.location_name}</Text>
+        <Text style={[styles.hint, { paddingBottom: spacing.lg + insets.bottom }]}>
+          Attualmente in: {item.location_name}
+        </Text>
       ) : (
-        <Text style={styles.hint}>Senza posto</Text>
+        <Text style={[styles.hint, { paddingBottom: spacing.lg + insets.bottom }]}>
+          Senza posto
+        </Text>
       )}
     </>
   );

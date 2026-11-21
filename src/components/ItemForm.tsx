@@ -1,5 +1,15 @@
-import { useState } from 'react';
-import { Alert, Image, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import {
+  Alert,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
 
 import { Button, ScreenScroll, SectionTitle } from './ui';
 import { LocationPicker } from './LocationPicker';
@@ -17,11 +27,13 @@ export interface ItemFormValues {
 export function ItemForm({
   initial,
   submitLabel,
+  autoFocusName = false,
   onSubmit,
   onDelete,
 }: {
   initial?: Partial<ItemFormValues>;
   submitLabel: string;
+  autoFocusName?: boolean;
   onSubmit: (values: ItemFormValues) => Promise<void>;
   onDelete?: () => void;
 }) {
@@ -32,11 +44,27 @@ export function ItemForm({
   const [locationId, setLocationId] = useState<number | null>(initial?.locationId ?? null);
   const [busy, setBusy] = useState(false);
 
+  // Foto scelta in questa sessione e non ancora salvata: non tocca initial.photoUri
+  // finché l'utente non conferma il salvataggio.
+  const tempPhotoRef = useRef<string | null>(null);
+  const submittedRef = useRef(false);
+
+  useEffect(() => {
+    return () => {
+      if (!submittedRef.current && tempPhotoRef.current) {
+        deletePhoto(tempPhotoRef.current);
+      }
+    };
+  }, []);
+
   const addPhoto = async () => {
     try {
       const uri = await pickAndPersistPhoto();
       if (uri) {
-        if (photoUri && photoUri !== uri) deletePhoto(photoUri);
+        if (tempPhotoRef.current && tempPhotoRef.current !== uri) {
+          deletePhoto(tempPhotoRef.current);
+        }
+        tempPhotoRef.current = uri;
         setPhotoUri(uri);
       }
     } catch (error) {
@@ -45,7 +73,10 @@ export function ItemForm({
   };
 
   const removePhoto = () => {
-    deletePhoto(photoUri);
+    if (tempPhotoRef.current && photoUri === tempPhotoRef.current) {
+      deletePhoto(tempPhotoRef.current);
+      tempPhotoRef.current = null;
+    }
     setPhotoUri(null);
   };
 
@@ -71,6 +102,7 @@ export function ItemForm({
         photoUri,
         locationId,
       });
+      submittedRef.current = true;
     } catch (error) {
       Alert.alert('Errore', error instanceof Error ? error.message : 'Salvataggio non riuscito.');
     } finally {
@@ -79,19 +111,23 @@ export function ItemForm({
   };
 
   return (
-    <ScreenScroll>
-      <View style={styles.field}>
-        <SectionTitle>Nome</SectionTitle>
-        <TextInput
-          style={styles.input}
-          value={name}
-          onChangeText={setName}
-          placeholder="Es. Forbici"
-          placeholderTextColor={colors.muted}
-          autoFocus
-          testID="item-name"
-        />
-      </View>
+    <KeyboardAvoidingView
+      style={styles.flex}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
+      <ScreenScroll>
+        <View style={styles.field}>
+          <SectionTitle>Nome</SectionTitle>
+          <TextInput
+            style={styles.input}
+            value={name}
+            onChangeText={setName}
+            placeholder="Es. Forbici"
+            placeholderTextColor={colors.muted}
+            autoFocus={autoFocusName}
+            testID="item-name"
+          />
+        </View>
 
       <View style={styles.field}>
         <SectionTitle>Quantità</SectionTitle>
@@ -148,14 +184,16 @@ export function ItemForm({
         testID="item-submit"
       />
 
-      {onDelete ? (
-        <Button label="Elimina oggetto" variant="danger" onPress={onDelete} testID="item-delete" />
-      ) : null}
-    </ScreenScroll>
+        {onDelete ? (
+          <Button label="Elimina oggetto" variant="danger" onPress={onDelete} testID="item-delete" />
+        ) : null}
+      </ScreenScroll>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
+  flex: { flex: 1 },
   field: { gap: spacing.sm },
   input: {
     borderWidth: StyleSheet.hairlineWidth,

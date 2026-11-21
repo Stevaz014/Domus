@@ -10,6 +10,8 @@ import {
   type ViewStyle,
 } from 'react-native';
 
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 import { colors, radius, spacing } from '../theme';
 
 export function Screen({ children }: { children: ReactNode }) {
@@ -17,10 +19,14 @@ export function Screen({ children }: { children: ReactNode }) {
 }
 
 export function ScreenScroll({ children }: { children: ReactNode }) {
+  const insets = useSafeAreaInsets();
   return (
     <ScrollView
       style={styles.screen}
-      contentContainerStyle={styles.scrollContent}
+      contentContainerStyle={[
+        styles.scrollContent,
+        { paddingBottom: spacing.xl * 3 + insets.bottom },
+      ]}
       keyboardShouldPersistTaps="handled"
     >
       {children}
@@ -122,11 +128,16 @@ export function Button({
 }
 
 export function Fab({ label, onPress, testID }: { label: string; onPress: () => void; testID?: string }) {
+  const insets = useSafeAreaInsets();
   return (
     <Pressable
       testID={testID}
       onPress={onPress}
-      style={({ pressed }) => [styles.fab, pressed && styles.buttonPressed]}
+      style={({ pressed }) => [
+        styles.fab,
+        { bottom: spacing.lg + insets.bottom },
+        pressed && styles.buttonPressed,
+      ]}
     >
       <Text style={styles.fabLabel}>{label}</Text>
     </Pressable>

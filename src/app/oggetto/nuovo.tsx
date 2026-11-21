@@ -17,6 +17,7 @@ export default function NewItemScreen() {
   return (
     <ItemForm
       submitLabel="Salva oggetto"
+      autoFocusName
       initial={{ locationId: presetLocationId }}
       onSubmit={async (values) => {
         await createItem(db, values);
